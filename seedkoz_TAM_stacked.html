@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corn & Soybean TAM — Stacked View</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #fff; font-family: Georgia, serif; }
+  #wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+  h1 { font-size: 18px; font-weight: 700; color: #000; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #888; margin-bottom: 14px; }
+  #assumptions { background: #f9f9f9; border: 1px solid #ddd; padding: 10px 14px; margin-bottom: 12px; }
+  #assumptions .albl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  #assumptions .arow { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: #444; }
+  #leg { display: flex; gap: 16px; padding: 0 0 10px; font-size: 12px; color: #555; flex-wrap: wrap; }
+  .leg-item { display: flex; align-items: center; gap: 5px; }
+  .leg-sq { width: 13px; height: 13px; display: inline-block; }
+  #map-wrap { width: 100%; border: 1px solid #000; background: #fff; }
+  #panel { border: 1px solid #000; padding: 16px; margin-top: 10px; min-height: 160px; }
+  #p-empty { font-size: 13px; color: #aaa; padding-top: 4px; }
+  #p-detail { display: none; }
+  #p-name { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #000; }
+  .layer { margin-bottom: 14px; }
+  .layer-lbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: #ccc; border: 1px solid #ccc; margin-bottom: 6px; }
+  .stat-grid.dark { background: #000; border-color: #000; }
+  .stat-cell { background: #fff; padding: 8px 10px; }
+  .stat-cell.dark { background: #111; }
+  .stat-lbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  .stat-lbl.dark { color: #aaa; }
+  .stat-val { font-size: 15px; font-weight: 700; color: #000; }
+  .stat-val.dark { color: #fff; font-size: 17px; }
+  .stat-sub { font-size: 10px; color: #aaa; }
+  .stat-sub.dark { color: #666; }
+  .bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .bar-lbl { font-size: 10px; color: #888; width: 60px; text-align: right; }
+  .bar-track { flex: 1; background: #eee; height: 6px; }
+  .bar-fill { height: 6px; transition: width .3s; width: 0%; }
+  .divider { border-top: 1px dashed #ddd; margin-bottom: 14px; position: relative; }
+  .divider span { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 8px; font-size: 10px; color: #aaa; }
+  .bar-val { font-size: 10px; color: #888; width: 70px; }
+  #totals-wrap { margin-top: 10px; }
+  .tot-section-lbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; margin-top: 4px; }
+  .tot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin-bottom: 4px; }
+  .tot-hdr { padding: 7px 10px; grid-column: 1/-1; }
+  .tot-hdr span { font-size: 10px; font-weight: 700; color: #fff; letter-spacing: .06em; text-transform: uppercase; }
+  .tot-cell { background: #fff; padding: 8px 10px; }
+  .tot-cell.dark { background: #111; }
+  .tot-lbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  .tot-lbl.dark { color: #aaa; }
+  .tot-val { font-size: 13px; font-weight: 700; color: #000; }
+  .tot-val.dark { color: #fff; }
+  .tot-sub { font-size: 10px; color: #aaa; }
+  .tot-sub.dark { color: #666; }
+  .grp-gap { margin-bottom: 8px; }
+  .note { font-size: 10px; color: #aaa; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>Corn &amp; Soybean Acreage + TAM Analysis</h1>
+  <p class="subtitle">Opportunity Geography &amp; SeedKoz States — USDA NASS 2025 Crop Production Summary (January 2026)</p>
+
+  <div id="assumptions">
+    <div class="albl">TAM Model Assumptions</div>
+    <div class="arow">
+      <span>Independent brand share: <strong>20%</strong></span>
+      <span>Capturable national brand share: <strong>15% of 80% = 12%</strong></span>
+      <span>Total TAM rate: <strong>32% of planted acres</strong></span>
+      <span>Corn seed value: <strong>$100/ac</strong> ($250/unit ÷ 2.5 ac/unit)</span>
+      <span>Soybean seed value: <strong>$50/ac</strong></span>
+    </div>
+  </div>
+
+  <div id="leg">
+    <span class="leg-item"><span class="leg-sq" style="background:#2E7D32;"></span>Opportunity Geography</span>
+    <span class="leg-item"><span class="leg-sq" style="background:#002868;"></span>SeedKoz</span>
+    <span class="leg-item"><span class="leg-sq" style="background:#ccc;border:1px solid #bbb;"></span>Not in scope</span>
+  </div>
+
+  <div id="map-wrap"></div>
+
+  <div id="panel">
+    <div id="p-empty">Click any highlighted state to see the full acreage and TAM breakdown.</div>
+    <div id="p-detail">
+      <div id="p-name"></div>
+
+      <div class="layer">
+        <div class="layer-lbl">① Total Planted Acres</div>
+        <div class="stat-grid">
+          <div class="stat-cell"><div class="stat-lbl">Corn</div><div class="stat-val" id="l1-corn"></div><div class="stat-sub">thousand acres</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Soybeans</div><div class="stat-val" id="l1-soy"></div><div class="stat-sub">thousand acres</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Combined</div><div class="stat-val" id="l1-comb"></div><div class="stat-sub">thousand acres</div></div>
+        </div>
+        <div class="bar-row"><span class="bar-lbl">Corn</span><div class="bar-track"><div class="bar-fill" id="b1-corn" style="background:#2E7D32;"></div></div><span class="bar-val" id="bv1-corn"></span></div>
+        <div class="bar-row"><span class="bar-lbl">Soybeans</span><div class="bar-track"><div class="bar-fill" id="b1-soy" style="background:#002868;"></div></div><span class="bar-val" id="bv1-soy"></span></div>
+      </div>
+
+      <div class="divider"><span>× 32% TAM rate</span></div>
+
+      <div class="layer">
+        <div class="layer-lbl">② Addressable Acres (TAM Acres)</div>
+        <div class="stat-grid">
+          <div class="stat-cell"><div class="stat-lbl">Corn</div><div class="stat-val" id="l2-corn"></div><div class="stat-sub">thousand acres</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Soybeans</div><div class="stat-val" id="l2-soy"></div><div class="stat-sub">thousand acres</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Combined</div><div class="stat-val" id="l2-comb"></div><div class="stat-sub">thousand acres</div></div>
+        </div>
+        <div class="bar-row"><span class="bar-lbl">Corn</span><div class="bar-track"><div class="bar-fill" id="b2-corn" style="background:#2E7D32;opacity:0.6;"></div></div><span class="bar-val" id="bv2-corn"></span></div>
+        <div class="bar-row"><span class="bar-lbl">Soybeans</span><div class="bar-track"><div class="bar-fill" id="b2-soy" style="background:#002868;opacity:0.6;"></div></div><span class="bar-val" id="bv2-soy"></span></div>
+      </div>
+
+      <div class="divider"><span>× seed value per acre</span></div>
+
+      <div class="layer">
+        <div class="layer-lbl">③ Total Addressable Market ($)</div>
+        <div class="stat-grid dark">
+          <div class="stat-cell"><div class="stat-lbl">Corn TAM</div><div class="stat-val" id="l3-corn"></div><div class="stat-sub">seed value</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Soybean TAM</div><div class="stat-val" id="l3-soy"></div><div class="stat-sub">seed value</div></div>
+          <div class="stat-cell dark"><div class="stat-lbl dark">Total TAM</div><div class="stat-val dark" id="l3-total"></div><div class="stat-sub dark">seed value</div></div>
+        </div>
+        <div class="bar-row"><span class="bar-lbl">Corn</span><div class="bar-track"><div class="bar-fill" id="b3-corn" style="background:#2E7D32;"></div></div><span class="bar-val" id="bv3-corn"></span></div>
+        <div class="bar-row"><span class="bar-lbl">Soybeans</span><div class="bar-track"><div class="bar-fill" id="b3-soy" style="background:#002868;"></div></div><span class="bar-val" id="bv3-soy"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="totals-wrap"></div>
+  <p class="note">Acres: USDA NASS 2025 Crop Production Summary (January 2026). TAM = 32% of planted acres × seed value per acre.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+const GREEN = '#2E7D32';
+const NAVY  = '#002868';
+const TAM_RATE = 0.32;
+const CORN_PX  = 100;
+const SOY_PX   = 50;
+
+const DATA = {
+  'Illinois':       {corn:11200, soy:10200, og:true},
+  'Indiana':        {corn:5400,  soy:5500,  og:true},
+  'Ohio':           {corn:3400,  soy:5300,  og:true},
+  'Missouri':       {corn:3800,  soy:5700,  og:true},
+  'Texas':          {corn:2500,  soy:90,    og:true},
+  'Arkansas':       {corn:810,   soy:3300,  og:false},
+  'Kentucky':       {corn:1520,  soy:2100,  og:false},
+  'Mississippi':    {corn:910,   soy:2550,  og:false},
+  'Tennessee':      {corn:930,   soy:1750,  og:false},
+  'North Carolina': {corn:950,   soy:1580,  og:false},
+  'Pennsylvania':   {corn:1010,  soy:590,   og:false},
+  'New York':       {corn:970,   soy:430,   og:false},
+  'Virginia':       {corn:470,   soy:580,   og:false},
+  'Maryland':       {corn:460,   soy:470,   og:false},
+  'South Carolina': {corn:390,   soy:380,   og:false},
+  'Georgia':        {corn:550,   soy:175,   og:false},
+  'Delaware':       {corn:175,   soy:150,   og:false},
+  'Alabama':        {corn:350,   soy:370,   og:false},
+  'New Jersey':     {corn:75,    soy:95,    og:false},
+  'Louisiana':      {corn:810,   soy:1020,  og:false},
+};
+
+Object.values(DATA).forEach(d=>{
+  d.tamCornAc = Math.round(d.corn * TAM_RATE * 10) / 10;
+  d.tamSoyAc  = Math.round(d.soy  * TAM_RATE * 10) / 10;
+  d.tamCorn$  = Math.round(d.corn * 1000 * TAM_RATE * CORN_PX);
+  d.tamSoy$   = Math.round(d.soy  * 1000 * TAM_RATE * SOY_PX);
+  d.tamTotal$ = d.tamCorn$ + d.tamSoy$;
+});
+
+const FIPS = {
+  '01':'Alabama','02':'Alaska','04':'Arizona','05':'Arkansas','06':'California',
+  '08':'Colorado','09':'Connecticut','10':'Delaware','12':'Florida','13':'Georgia',
+  '15':'Hawaii','16':'Idaho','17':'Illinois','18':'Indiana','19':'Iowa',
+  '20':'Kansas','21':'Kentucky','22':'Louisiana','23':'Maine','24':'Maryland',
+  '25':'Massachusetts','26':'Michigan','27':'Minnesota','28':'Mississippi',
+  '29':'Missouri','30':'Montana','31':'Nebraska','32':'Nevada','33':'New Hampshire',
+  '34':'New Jersey','35':'New Mexico','36':'New York','37':'North Carolina',
+  '38':'North Dakota','39':'Ohio','40':'Oklahoma','41':'Oregon','42':'Pennsylvania',
+  '44':'Rhode Island','45':'South Carolina','46':'South Dakota','47':'Tennessee',
+  '48':'Texas','49':'Utah','50':'Vermont','51':'Virginia','53':'Washington',
+  '54':'West Virginia','55':'Wisconsin','56':'Wyoming'
+};
+
+const MAX_AC  = 11200;
+const MAX_TAM = Object.values(DATA).reduce((m,d)=>Math.max(m,d.tamTotal$),0);
+
+function fmtAc(n) { return (Math.round(n*10)/10).toLocaleString(); }
+function fmtM(n)  { return n>=1e6?'$'+(n/1e6).toFixed(1)+'M':'$'+(n/1000).toFixed(0)+'K'; }
+
+let selPath = null;
+
+function getFill(name){
+  if(!name||!DATA[name]) return '#ccc';
+  return DATA[name].og ? GREEN : NAVY;
+}
+
+function showState(name){
+  const d=DATA[name]; if(!d) return;
+  if(selPath){
+    const pn=FIPS[String(selPath.__data__.id).padStart(2,'0')];
+    d3.select(selPath).attr('fill',getFill(pn)).style('filter','none');
+  }
+  document.getElementById('p-empty').style.display='none';
+  document.getElementById('p-detail').style.display='block';
+  const ogLabel={Illinois:'ECB',Indiana:'ECB',Ohio:'ECB',Missouri:'MO',Texas:'TX'};
+  const grp=d.og?'Opportunity Geography'+(ogLabel[name]?' — '+ogLabel[name]:''):'SeedKoz';
+  document.getElementById('p-name').textContent=name+' — '+grp;
+  // L1
+  document.getElementById('l1-corn').textContent=fmtAc(d.corn);
+  document.getElementById('l1-soy').textContent=fmtAc(d.soy);
+  document.getElementById('l1-comb').textContent=fmtAc(d.corn+d.soy);
+  document.getElementById('b1-corn').style.width=Math.round(d.corn/MAX_AC*100)+'%';
+  document.getElementById('b1-soy').style.width=Math.round(d.soy/MAX_AC*100)+'%';
+  document.getElementById('bv1-corn').textContent=fmtAc(d.corn)+'K ac';
+  document.getElementById('bv1-soy').textContent=fmtAc(d.soy)+'K ac';
+  // L2
+  document.getElementById('l2-corn').textContent=fmtAc(d.tamCornAc);
+  document.getElementById('l2-soy').textContent=fmtAc(d.tamSoyAc);
+  document.getElementById('l2-comb').textContent=fmtAc(d.tamCornAc+d.tamSoyAc);
+  document.getElementById('b2-corn').style.width=Math.round(d.tamCornAc/MAX_AC*100)+'%';
+  document.getElementById('b2-soy').style.width=Math.round(d.tamSoyAc/MAX_AC*100)+'%';
+  document.getElementById('bv2-corn').textContent=fmtAc(d.tamCornAc)+'K ac';
+  document.getElementById('bv2-soy').textContent=fmtAc(d.tamSoyAc)+'K ac';
+  // L3
+  document.getElementById('l3-corn').textContent=fmtM(d.tamCorn$);
+  document.getElementById('l3-soy').textContent=fmtM(d.tamSoy$);
+  document.getElementById('l3-total').textContent=fmtM(d.tamTotal$);
+  document.getElementById('b3-corn').style.width=Math.round(d.tamCorn$/MAX_TAM*100)+'%';
+  document.getElementById('b3-soy').style.width=Math.round(d.tamSoy$/MAX_TAM*100)+'%';
+  document.getElementById('bv3-corn').textContent=fmtM(d.tamCorn$);
+  document.getElementById('bv3-soy').textContent=fmtM(d.tamSoy$);
+}
+
+function buildTotals(){
+  let ogC=0,ogS=0,ogCA=0,ogSA=0,ogTC=0,ogTS=0,skC=0,skS=0,skCA=0,skSA=0,skTC=0,skTS=0;
+  Object.values(DATA).forEach(d=>{
+    if(d.og){ogC+=d.corn;ogS+=d.soy;ogCA+=d.tamCornAc;ogSA+=d.tamSoyAc;ogTC+=d.tamCorn$;ogTS+=d.tamSoy$;}
+    else    {skC+=d.corn;skS+=d.soy;skCA+=d.tamCornAc;skSA+=d.tamSoyAc;skTC+=d.tamCorn$;skTS+=d.tamSoy$;}
+  });
+  const cell=(lbl,val,sub,dk)=>`<div class="tot-cell${dk?' dark':''}"><div class="tot-lbl${dk?' dark':''}">${lbl}</div><div class="tot-val${dk?' dark':''}">${val}</div><div class="tot-sub${dk?' dark':''}">${sub}</div></div>`;
+  const sec=(color,title,c1l,c1v,c1s,c2l,c2v,c2s,c3l,c3v,c3s,dk)=>`
+    <div class="tot-grid" style="background:${color};border:1px solid ${color};margin-bottom:4px;">
+      <div class="tot-hdr" style="background:${color};"><span>${title}</span></div>
+      ${cell(c1l,c1v,c1s,false)}${cell(c2l,c2v,c2s,false)}${cell(c3l,c3v,c3s,dk)}
+    </div>`;
+  document.getElementById('totals-wrap').innerHTML=`
+    <div class="tot-section-lbl">Group Totals</div>
+    ${sec(GREEN,'Opportunity Geography — Total Planted Acres','Corn',fmtAc(ogC)+'K','ac','Soybeans',fmtAc(ogS)+'K','ac','Combined',fmtAc(ogC+ogS)+'K','ac',false)}
+    ${sec(GREEN,'Opportunity Geography — TAM Acres (32%)','Corn',fmtAc(ogCA)+'K','ac','Soybeans',fmtAc(ogSA)+'K','ac','Combined',fmtAc(ogCA+ogSA)+'K','ac',false)}
+    ${sec(GREEN,'Opportunity Geography — TAM ($)','Corn TAM',fmtM(ogTC),'$100/ac','Soybean TAM',fmtM(ogTS),'$50/ac','Total TAM',fmtM(ogTC+ogTS),'seed value',true)}
+    <div class="grp-gap"></div>
+    ${sec(NAVY,'SeedKoz — Total Planted Acres','Corn',fmtAc(skC)+'K','ac','Soybeans',fmtAc(skS)+'K','ac','Combined',fmtAc(skC+skS)+'K','ac',false)}
+    ${sec(NAVY,'SeedKoz — TAM Acres (32%)','Corn',fmtAc(skCA)+'K','ac','Soybeans',fmtAc(skSA)+'K','ac','Combined',fmtAc(skCA+skSA)+'K','ac',false)}
+    ${sec(NAVY,'SeedKoz — TAM ($)','Corn TAM',fmtM(skTC),'$100/ac','Soybean TAM',fmtM(skTS),'$50/ac','Total TAM',fmtM(skTC+skTS),'seed value',true)}`;
+}
+
+const projection=d3.geoAlbersUsa().scale(1280).translate([480,300]);
+const pathGen=d3.geoPath().projection(projection);
+const svg=d3.select('#map-wrap').append('svg')
+  .attr('viewBox','0 0 960 596').attr('width','100%').style('display','block');
+
+fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
+  .then(r=>r.json())
+  .then(us=>{
+    const features=topojson.feature(us,us.objects.states).features;
+    svg.selectAll('path.state').data(features).join('path')
+      .attr('class','state').attr('d',pathGen)
+      .attr('fill',d=>getFill(FIPS[String(d.id).padStart(2,'0')]))
+      .attr('stroke','#fff')
+      .attr('stroke-width',d=>{ const n=FIPS[String(d.id).padStart(2,'0')]; return n&&DATA[n]?1:0.5; })
+      .style('cursor',d=>{ const n=FIPS[String(d.id).padStart(2,'0')]; return n&&DATA[n]?'pointer':'default'; })
+      .on('mouseover',function(e,d){
+        const n=FIPS[String(d.id).padStart(2,'0')];
+        if(n&&DATA[n]&&this!==selPath) d3.select(this).style('filter','brightness(1.3)');
+      })
+      .on('mouseout',function(e,d){
+        if(this!==selPath){ const n=FIPS[String(d.id).padStart(2,'0')]; d3.select(this).attr('fill',getFill(n)).style('filter','none'); }
+      })
+      .on('click',function(e,d){
+        const n=FIPS[String(d.id).padStart(2,'0')];
+        if(!n||!DATA[n]) return;
+        if(selPath){ const pn=FIPS[String(selPath.__data__.id).padStart(2,'0')]; d3.select(selPath).attr('fill',getFill(pn)).style('filter','none'); }
+        selPath=this; d3.select(this).style('filter','brightness(1.35)');
+        showState(n);
+      })
+      .append('title').text(d=>{
+        const n=FIPS[String(d.id).padStart(2,'0')];
+        if(!n||!DATA[n]) return n||'';
+        const sd=DATA[n];
+        return n+'\nTotal acres: '+fmtAc(sd.corn+sd.soy)+'K\nTAM acres: '+fmtAc(sd.tamCornAc+sd.tamSoyAc)+'K\nTAM $: '+fmtM(sd.tamTotal$);
+      });
+    svg.append('path')
+      .datum(topojson.mesh(us,us.objects.states,(a,b)=>a!==b))
+      .attr('d',pathGen).attr('fill','none')
+      .attr('stroke','rgba(255,255,255,0.4)').attr('stroke-width',0.5)
+      .attr('pointer-events','none');
+    buildTotals();
+  })
+  .catch(()=>{
+    document.getElementById('map-wrap').innerHTML='<p style="padding:20px;color:#999;font-size:13px;">Map failed to load. Please check your internet connection and refresh.</p>';
+  });
+</script>
+</body>
+</html>
